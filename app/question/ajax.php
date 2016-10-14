@@ -304,7 +304,7 @@ class ajax extends AWS_CONTROLLER
 		$answer_info = $this->model('answer')->get_answer_by_id($_GET['answer_id']);
 
 		TPL::assign('question', $this->model('question')->get_question_info_by_id($answer_info['question_id']));
-
+		TPL::assign('answer_info', $answer_info);
 		TPL::assign('comments', $comments);
 
 		if (is_mobile())
@@ -576,6 +576,11 @@ class ajax extends AWS_CONTROLLER
 		}
 
 		$this->model('draft')->delete_draft($question_info['question_id'], 'answer', $this->user_id);
+		
+		if ($question_info['anonymous'] AND $question_info['published_uid'] == $this->user_id)
+		{
+			$_POST['anonymous'] = 1;
+		}
 
 		if ($this->publish_approval_valid($answer_content))
 		{
@@ -717,7 +722,7 @@ class ajax extends AWS_CONTROLLER
 
 		$log_list = ACTION_LOG::get_action_by_event_id($_GET['id'], (intval($_GET['page']) * get_setting('contents_per_page')) . ', ' . get_setting('contents_per_page'), ACTION_LOG::CATEGORY_QUESTION, implode(',', array(
 			ACTION_LOG::ADD_QUESTION,
-			ACTION_LOG::MOD_QUESTON_TITLE,
+			ACTION_LOG::MOD_QUESTION_TITLE,
 			ACTION_LOG::MOD_QUESTION_DESCRI,
 			ACTION_LOG::ADD_TOPIC,
 			ACTION_LOG::DELETE_TOPIC,
